@@ -2,6 +2,7 @@ package com.vueapiserver.shop.common.page;
 
 
 import com.vueapiserver.shop.utils.ServletUtils;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * 表格数据处理
@@ -13,22 +14,39 @@ public class TableSupport
     /**
      * 当前记录起始索引
      */
-    public static final String PAGE_NUM = "pageNum";
+    public static  String PAGE_NUM ;
 
     /**
      * 每页显示记录数
      */
-    public static final String PAGE_SIZE = "pageSize";
+    public static  String PAGE_SIZE ;
 
     /**
      * 排序列
      */
-    public static final String ORDER_BY_COLUMN = "orderByColumn";
+    public static  String ORDER_BY_COLUMN ;
 
     /**
      * 排序的方向 "desc" 或者 "asc".
      */
-    public static final String IS_ASC = "isAsc";
+    public static  String IS_ASC ;
+
+    @Value("${page.pageNum}")
+    public  void setPageNum(String pageNum) {
+        PAGE_NUM = pageNum;
+    }
+    @Value("${page.pageSize}")
+    public  void setPageSize(String pageSize) {
+        PAGE_SIZE = pageSize;
+    }
+    @Value("${page.orderByColumn}")
+    public  void setOrderByColumn(String orderByColumn) {
+        ORDER_BY_COLUMN = orderByColumn;
+    }
+    @Value("${page.isAsc}")
+    public  void setIsAsc(String isAsc) {
+        IS_ASC = isAsc;
+    }
 
     /**
      * 封装分页对象

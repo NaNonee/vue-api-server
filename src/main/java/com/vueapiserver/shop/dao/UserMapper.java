@@ -3,8 +3,9 @@ package com.vueapiserver.shop.dao;
 import com.vueapiserver.shop.entity.User;
 import com.vueapiserver.shop.entity.UserExample;
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 public interface UserMapper {
     int countByExample(UserExample example);
 
@@ -17,6 +18,8 @@ public interface UserMapper {
     int insertSelective(User record);
 
     List<User> selectByExample(UserExample example);
+
+    List<User> selectAllUser();
 
     User selectByPrimaryKey(Integer userid);
 

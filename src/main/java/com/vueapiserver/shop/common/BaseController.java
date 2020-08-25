@@ -1,16 +1,31 @@
 package com.vueapiserver.shop.common;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.vueapiserver.shop.common.page.PageData;
+import com.vueapiserver.shop.common.page.PageDomain;
+import com.vueapiserver.shop.common.page.TableDataInfo;
+import com.vueapiserver.shop.common.page.TableSupport;
+import com.vueapiserver.shop.constant.HttpStatus;
+import com.vueapiserver.shop.utils.AjaxResult;
 import com.vueapiserver.shop.utils.DateUtils;
+import com.vueapiserver.shop.utils.SqlUtil;
+import com.vueapiserver.shop.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.beans.PropertyEditorSupport;
 import java.util.Date;
+import java.util.List;
 
 public class BaseController {
     protected final Logger logger = LoggerFactory.getLogger(BaseController.class);
+    private static final long serialVersionUID = 6357869213649815390L;
     /**
      * 将前台传递过来的日期格式的字符串，自动转化为Date类型
      */
@@ -26,6 +41,78 @@ public class BaseController {
                 setValue(DateUtils.parseDate(text));
             }
         });
+    }
+
+    /**
+     * 设置请求分页数据
+     */
+    protected void startPage()
+    {
+        PageDomain pageDomain = TableSupport.buildPageRequest();
+        Integer pageNum = pageDomain.getPageNum();
+        Integer pageSize = pageDomain.getPageSize();
+        if(!StringUtils.isNotNull(pageNum)) pageNum = 1;
+        if(!StringUtils.isNotNull(pageSize)) pageSize = 5;
+        if (StringUtils.isNotNull(pageNum) && StringUtils.isNotNull(pageSize))
+        {
+            String orderBy = SqlUtil.escapeOrderBySql(pageDomain.getOrderBy());
+            PageHelper.startPage(pageNum, pageSize, orderBy);
+        }
+    }
+    /**
+     * 响应请求分页数据
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    protected TableDataInfo getDataTable(List<?> list)
+    {
+        TableDataInfo rspData = new TableDataInfo();
+        rspData.setCode(HttpStatus.SUCCESS);
+        rspData.setMsg("查询成功");
+        rspData.setRows(list);
+        rspData.setTotal(new PageInfo(list).getTotal());
+        return rspData;
+    }
+    /**
+     * 响应返回结果
+     *
+     * @param rows 影响行数
+     * @return 操作结果
+     */
+    protected AjaxResult toAjax(int rows)
+    {
+        return rows > 0 ? AjaxResult.success() : AjaxResult.error();
+    }
+
+    /**
+     * 页面跳转
+     */
+    public String redirect(String url)
+    {
+        return StringUtils.format("redirect:{}", url);
+    }
+/**
+ * pageData
+ * **/
+    public PageData getPageData(){
+        return new PageData(this.getRequest());
+    }
+    /**得到request对象
+     * @return
+     */
+    public HttpServletRequest getRequest() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        return request;
+    }
+
+    public static void logBefore(Logger logger, String interfaceName){
+        logger.info("");
+        logger.info("start");
+        logger.info(interfaceName);
+    }
+
+    public static void logAfter(Logger logger){
+        logger.info("end");
+        logger.info("");
     }
 
 
